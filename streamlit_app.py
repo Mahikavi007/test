@@ -1,3 +1,4 @@
+!pip install streamlit msal
 import streamlit as st
 import pandas as pd
 import requests
