@@ -71,7 +71,69 @@ client_secret = 'UCQ8Q~zvL.2l2lViFjPFCftXCCpiZ_M8RAYTecOk'
 site_id = 'evaphotoandfilms-my.sharepoint.com,3f2bcdfa-bb50-4dc5-b133-4034dbbe6b5f,3e1b4fd4-5c24-4cfa-bb97-562216222cb9'
 
 # Streamlit App
-st.title('SharePoint Lists Viewer')
+st.set_page_config(page_title="SharePoint Lists Viewer", page_icon="📋", layout="wide")
+
+# Custom CSS for aesthetics
+st.markdown("""
+<style>
+    /* Main title style */
+    .main-title {
+        color: #3E2723;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Tab style */
+    .stTabs [data-baseweb="tab-list"] {
+        background: #A1887F;
+        padding: 5px;
+        border-radius: 10px;
+    }
+
+    /* Tab content style */
+    .stTabs [data-baseweb="tab"] {
+        background: #D7CCC8;
+        color: #3E2723;
+        border-radius: 5px;
+        padding: 10px;
+        margin: 5px;
+        font-weight: bold;
+    }
+    
+    /* Selected tab style */
+    .stTabs [data-baseweb="tab"]:hover, .stTabs [data-baseweb="tab"][aria-selected="true"] {
+        background: #795548;
+        color: white;
+    }
+
+    /* Sidebar style */
+    .sidebar .sidebar-content {
+        background: #EFEBE9;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    /* Button style */
+    .stButton button {
+        background: #3E2723;
+        color: white;
+        border-radius: 5px;
+        padding: 10px 20px;
+        border: none;
+    }
+
+    /* Dataframe style */
+    .stDataFrame {
+        background: #FAFAFA;
+        border: 1px solid #D7CCC8;
+        border-radius: 10px;
+        margin: 20px 0;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<h1 class="main-title">SharePoint Lists Viewer</h1>', unsafe_allow_html=True)
 
 # Get all lists from the SharePoint site
 lists = get_all_lists(tenant_id, client_id, client_secret, site_id)
