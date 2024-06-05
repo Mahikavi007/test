@@ -1,20 +1,12 @@
 import streamlit as st
 import pandas as pd
 
-# Load the CSV file
-def load_data(file_path):
-    df = pd.read_csv(file_path)
-    return df
-
-# Save new review to CSV
-def save_data(file_path, data):
-    df = pd.read_csv(file_path)
-    new_data = pd.DataFrame([data])
-    df = pd.concat([df, new_data], ignore_index=True)
-    df.to_csv(file_path, index=False)
-
-# Configuration
-file_path = 'EVA_Weekly_Review_Scale.csv'
+# Initialize an empty DataFrame to store the data
+if 'reviews' not in st.session_state:
+    st.session_state['reviews'] = pd.DataFrame(columns=[
+        "WeekStartDate", "Member", "ReviewType", "Discipline_x002f_Punctuality",
+        "QualityofWork", "TeamWork", "Creativity", "RatingScale", "AccepttheManagerReview", "Comments"
+    ])
 
 # Streamlit App with custom styles
 st.markdown(
@@ -67,7 +59,7 @@ comments = st.sidebar.text_area('Comments')
 # Submit button
 if st.sidebar.button('Submit'):
     st.sidebar.write('Submitting...')
-    data = {
+    new_data = {
         "WeekStartDate": week_start_date.strftime('%Y-%m-%d'),  # Format the date correctly
         "Member": member,
         "ReviewType": review_type,
@@ -80,14 +72,14 @@ if st.sidebar.button('Submit'):
         "Comments": comments
     }
     
-    save_data(file_path, data)
+    st.session_state['reviews'] = st.session_state['reviews'].append(new_data, ignore_index=True)
     st.sidebar.success("Review submitted successfully!")
 
 # Display the data
 st.header('Current Ratings')
 
-df = load_data(file_path)
-if df is not None:
+df = st.session_state['reviews']
+if not df.empty:
     st.write(df)
 else:
     st.write("No data available")
