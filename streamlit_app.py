@@ -91,12 +91,3 @@ if df is not None:
     st.write(df)
 else:
     st.write("No data available")
-
-# Allow downloading the data as a CSV
-if df is not None:
-    st.download_button(
-        label="Download data as CSV",
-        data=df.to_csv(index=False).encode('utf-8'),
-        file_name='EVA_Weekly_Review_Scale.csv',
-        mime='text/csv'
-    )
