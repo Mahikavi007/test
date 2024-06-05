@@ -1,5 +1,10 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime, timedelta
+
+# Helper function to get the nearest Monday
+def get_nearest_monday(date):
+    return date - timedelta(days=date.weekday())
 
 # Initialize an empty DataFrame to store the data
 if 'reviews' not in st.session_state:
@@ -45,7 +50,11 @@ st.title('EVA Weekly Review Scale')
 st.sidebar.header('Submit Review')
 
 # Form inputs
-week_start_date = st.sidebar.date_input('Week Start Date')
+today = datetime.today()
+week_start_date = st.sidebar.date_input('Week Start Date', value=get_nearest_monday(today))
+if week_start_date.weekday() != 0:
+    st.sidebar.error("Please select a Monday for Week Start Date.")
+
 member = st.sidebar.selectbox('Member', ['Jaysuriya Nagaraj', 'Sarvesh SD', 'Rahul S', 'Emil Danty', 'Madan Raj M'])
 review_type = st.sidebar.selectbox('Review Type', ['Self', 'Manager'])
 discipline_punctuality = st.sidebar.selectbox('DisciplinePunctuality', ['Yes', 'No'])
@@ -58,27 +67,44 @@ comments = st.sidebar.text_area('Comments')
 
 # Submit button
 if st.sidebar.button('Submit'):
-    st.sidebar.write('Submitting...')
-    new_data = {
-        "WeekStartDate": week_start_date.strftime('%Y-%m-%d'),  # Format the date correctly
-        "Member": member,
-        "ReviewType": review_type,
-        "Discipline_x002f_Punctuality": discipline_punctuality,
-        "QualityofWork": quality_of_work,
-        "TeamWork": team_work,
-        "Creativity": creativity,
-        "RatingScale": rating_scale,
-        "AccepttheManagerReview": accept_manager_review,
-        "Comments": comments
-    }
-    
-    st.session_state['reviews'] = st.session_state['reviews'].append(new_data, ignore_index=True)
-    st.sidebar.success("Review submitted successfully!")
+    if week_start_date.weekday() == 0:  # Check if the date is Monday
+        new_data = {
+            "WeekStartDate": week_start_date.strftime('%Y-%m-%d'),  # Format the date correctly
+            "Member": member,
+            "ReviewType": review_type,
+            "Discipline_x002f_Punctuality": discipline_punctuality,
+            "QualityofWork": quality_of_work,
+            "TeamWork": team_work,
+            "Creativity": creativity,
+            "RatingScale": rating_scale,
+            "AccepttheManagerReview": accept_manager_review,
+            "Comments": comments
+        }
+        
+        st.session_state['reviews'] = st.session_state['reviews'].append(new_data, ignore_index=True)
+        st.sidebar.success("Review submitted successfully!")
+    else:
+        st.sidebar.error("Week Start Date must be a Monday.")
 
 # Display the data
 st.header('Current Ratings')
 
 df = st.session_state['reviews']
+
+# Filter options
+st.sidebar.header('Filter Reviews')
+filter_week_start_date = st.sidebar.selectbox('Week Start Date', ['All'] + df['WeekStartDate'].unique().tolist())
+filter_month = st.sidebar.selectbox('Month', ['All'] + sorted(df['WeekStartDate'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').strftime('%B')).unique().tolist()))
+filter_rating_scale = st.sidebar.selectbox('Rating Scale', ['All'] + df['RatingScale'].unique().tolist())
+
+# Apply filters
+if filter_week_start_date != 'All':
+    df = df[df['WeekStartDate'] == filter_week_start_date]
+if filter_month != 'All':
+    df = df[df['WeekStartDate'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').strftime('%B')) == filter_month]
+if filter_rating_scale != 'All':
+    df = df[df['RatingScale'] == filter_rating_scale]
+
 if not df.empty:
     st.write(df)
 else:
